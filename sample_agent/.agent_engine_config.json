@@ -1,0 +1,23 @@
+{
+  "agent_engine": {
+    "display_name": "ai-personal-learning-assistant-advanced",
+    "runtime": {
+      "python_version": "3.11"
+    },
+    "entrypoint": "agent_engine_app:handle"
+  },
+  "dependencies": {
+    "pip": [
+      "google-adk[a2a]",
+      "vertexai",
+      "sentence-transformers",
+      "pdfminer.six",
+      "pandas",
+      "numpy",
+      "scikit-learn",
+      "tqdm",
+      "faiss-cpu",
+      "google-cloud-storage"
+    ]
+  }
+}
