@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-set -e
-if [ -z "$PROJECT_ID" ]; then echo "Please set PROJECT_ID"; exit 1; fi
-if [ -z "$deployed_region" ]; then echo "Please set deployed_region"; exit 1; fi
-adk deploy agent_engine --project=$PROJECT_ID --region=$deployed_region sample_agent --agent_engine_config_file=sample_agent/.agent_engine_config.json
+set -euo pipefail
+
+: "\${PROJECT_ID:?Set PROJECT_ID to your Google Cloud project ID}"
+: "\${GOOGLE_CLOUD_LOCATION:?Set GOOGLE_CLOUD_LOCATION to your Agent Engine region}"
+
+adk deploy agent_engine \
+  --project="\${PROJECT_ID}" \
+  --region="\${GOOGLE_CLOUD_LOCATION}" \
+  sample_agent \
+  --agent_engine_config_file=sample_agent/.agent_engine_config.json
