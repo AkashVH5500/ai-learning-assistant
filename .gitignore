@@ -21,6 +21,7 @@ env/
 !.env.example
 **/.env
 **/.env.*
+!**/.env.example
 *.json.key
 
 # Build and generated output
