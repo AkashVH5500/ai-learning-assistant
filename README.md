@@ -1,209 +1,108 @@
-# 🤖 AI Personal Learning Assistant
+# AI Personal Learning Assistant
 
-An advanced **multi-agent AI Learning Assistant** developed as the **Google ADK + Kaggle AI Agents Capstone Project**. The system leverages multiple AI agents working collaboratively to help users learn topics efficiently by generating study plans, researching content, summarizing information, and creating quizzes.
+A Python capstone prototype exploring a structured learning workflow with planner, researcher, summariser and quiz-generator components. The repository includes PDF ingestion, sentence-transformer embeddings, optional FAISS search, session storage, optional Google Cloud Storage-backed memory and a Vertex AI Agent Engine deployment configuration.
 
----
+## Current implementation status
 
-## 📖 Overview
+This repository is a prototype, not a production-ready or fully LLM-driven tutor. The implementation should be described accurately:
 
-The AI Personal Learning Assistant uses a **multi-agent architecture**, where each specialized agent performs a dedicated task in the learning workflow. The project demonstrates context engineering, memory management, agent orchestration, and deployment using **Google Agent Development Kit (ADK)** and **Vertex AI Agent Engine**.
+- **Planner:** rule-based workflow selection based on the requested mode.
+- **Researcher:** can ingest PDF text, split it into chunks, create sentence-transformer embeddings and retrieve relevant chunks. FAISS is used when installed; a NumPy similarity fallback is available.
+- **Summariser:** currently returns an extractive slice of retrieved text; it does not call an LLM.
+- **Quiz generator:** currently uses question templates and placeholder answer choices; it is not a validated knowledge-assessment system.
+- **Answer action:** currently returns a placeholder response rather than a generated LLM answer.
+- **Session and memory:** session data is stored under /tmp; the MemoryBank can use Google Cloud Storage when configured and otherwise falls back to local files.
+- **Cloud deployment:** an Agent Engine configuration and deployment script are included. Validate the configuration and runtime behaviour in your own Google Cloud project before claiming a live production deployment.
 
----
+## Project structure
 
-## 🚀 Features
-
-* 🤖 Multi-Agent AI Architecture
-* 📚 Personalized Learning Assistance
-* 📝 Automatic Study Plan Generation
-* 🔍 Intelligent Research Agent
-* 📄 AI-powered Summarization
-* ❓ Quiz Generation
-* 🧠 Long-term Memory Support
-* 💬 Session Management
-* 📊 Context Engineering & Compression
-* ☁️ Vertex AI Agent Engine Deployment
-* 📈 Logging and Observability
-
----
-
-## 🏗️ Multi-Agent Workflow
-
-```text
-User Query
-     │
-     ▼
- Planner Agent
-     │
-     ▼
- Research Agent
-     │
-     ▼
- Summarizer Agent
-     │
-     ▼
- Quiz Generator Agent
-     │
-     ▼
- Final Learning Response
-```
-
-Each agent focuses on a single responsibility, making the system modular, scalable, and easier to extend.
-
----
-
-## 🛠️ Technologies Used
-
-* Python
-* Google Agent Development Kit (ADK)
-* Vertex AI
-* Google Cloud Platform (GCP)
-* Vertex AI Agent Engine
-* Google Cloud Storage (GCS)
-* Generative AI
-* Multi-Agent Systems
-* Context Engineering
-* Logging & Observability
-
----
-
-## 📂 Project Structure
-
-```text
+~~~text
 ai-learning-assistant/
-│
-├── demo/                        # Demo scripts
-├── sample_agent/                # ADK-ready agent implementation
+├── demo/
+│   └── DEMO_INSTRUCTIONS.md
+├── sample_agent/
+│   ├── agent_engine_app.py
+│   ├── deploy.sh
+│   ├── .agent_engine_config.json
+│   ├── .env.example
+│   ├── requirements.txt
+│   ├── run_demo.py
+│   ├── memory/
+│   ├── tools/
+│   └── utils/
 ├── README.md
-├── advanced_ai_learning_assistant.zip
-```
+└── .gitignore
+~~~
 
----
+## Local setup
 
-## ⚙️ Core Components
+Use Python 3.10 or later.
 
-### 🧠 Planner Agent
-
-Creates a structured learning roadmap based on the user's topic.
-
-### 🔍 Research Agent
-
-Collects relevant educational information using available knowledge sources.
-
-### 📄 Summarizer Agent
-
-Condenses researched content into concise and easy-to-understand notes.
-
-### ❓ Quiz Generator Agent
-
-Creates quizzes to reinforce learning and assess understanding.
-
----
-
-## 💾 Memory System
-
-The project includes:
-
-* Session Management using `InMemorySessionService`
-* Long-term Memory using `MemoryBank`
-* Google Cloud Storage (GCS) integration
-* Context Compression for efficient conversations
-
----
-
-## ▶️ Getting Started
-
-### Clone the Repository
-
-```bash
+~~~bash
 git clone https://github.com/AkashVH5500/ai-learning-assistant.git
-
 cd ai-learning-assistant
-```
 
-### Install Dependencies
+python -m venv .venv
+~~~
 
-```bash
-pip install -r requirements.txt
-```
+Activate the environment:
 
-### Run Demo
+- macOS / Linux: source .venv/bin/activate
+- Windows PowerShell: .venv\Scripts\Activate.ps1
 
-```bash
-python demo/main.py
-```
+Install the project dependencies:
 
-or execute the sample agent according to the ADK setup instructions.
+~~~bash
+python -m pip install --upgrade pip
+pip install -r sample_agent/requirements.txt
+~~~
 
----
+## Run the PDF retrieval demo
 
-## 📈 Future Enhancements
+The demo can run without Google Cloud credentials. To test PDF ingestion, pass a local PDF path:
 
-* Voice-based Learning Assistant
-* PDF & Document Learning
-* Multi-language Support
-* Personalized Learning Analytics
-* Web Search Integration
-* Learning Progress Dashboard
-* Mobile Application
-* Cloud Deployment
+~~~bash
+python -m sample_agent.run_demo path/to/document.pdf
+~~~
 
----
+Without a PDF argument, the researcher starts with an empty in-memory document collection and reports that no documents are available.
 
-## 🎯 Learning Outcomes
+## Optional Google Cloud configuration
 
-This project demonstrates practical experience with:
+Copy the example file and replace the placeholders with your own project settings:
 
-* Multi-Agent AI Systems
-* Agent Orchestration
-* Large Language Models (LLMs)
-* Prompt Engineering
-* Context Engineering
-* Memory Management
-* Google ADK
-* Vertex AI Deployment
-* Cloud-based AI Applications
+~~~bash
+cp sample_agent/.env.example sample_agent/.env
+~~~
 
----
+For a Bash shell, load these variables before running deployment commands:
 
-## 🤝 Contributing
+~~~bash
+set -a
+source sample_agent/.env
+set +a
+~~~
 
-Contributions are welcome.
+Authenticate using the Google Cloud CLI or another supported Application Default Credentials flow. Then run the deployment script from the repository root:
 
-1. Fork the repository.
-2. Create a feature branch.
+~~~bash
+bash sample_agent/deploy.sh
+~~~
 
-```bash
-git checkout -b feature-name
-```
+The script expects PROJECT_ID and GOOGLE_CLOUD_LOCATION. The configured bucket is used by the optional GCS-backed MemoryBank. Do not commit .env or service-account credentials.
 
-3. Commit your changes.
+## Dependencies
 
-```bash
-git commit -m "Add new feature"
-```
+The dependency list is maintained in sample_agent/requirements.txt and includes Google ADK deployment tooling, Vertex AI / Google Cloud Storage libraries, sentence-transformers, PDFMiner, NumPy, Pandas, scikit-learn, tqdm and FAISS CPU.
 
-4. Push your branch.
+## Limitations and next steps
 
-```bash
-git push origin feature-name
-```
+1. Replace the placeholder answer path with a real model-backed generation step and source-grounded response handling.
+2. Replace extractive summarisation and template quiz generation with evaluated implementations.
+3. Add automated tests for planner modes, PDF ingestion, retrieval, memory persistence and failure cases.
+4. Add a small, redistributable sample document and clear retrieval-quality evaluation.
+5. Verify Agent Engine deployment and document an actual, reproducible deployment result.
 
-5. Open a Pull Request.
+## Author
 
----
-
-## 📄 License
-
-This project is developed for educational and research purposes.
-
----
-
-## 👨‍💻 Author
-
-**Akash V Hiremath**
-
-Computer Science Engineering Student | AI & Full Stack Developer
-
-GitHub: https://github.com/AkashVH5500
-
----
+Akash V Hiremath — [GitHub](https://github.com/AkashVH5500)
